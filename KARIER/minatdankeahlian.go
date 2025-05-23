@@ -9,24 +9,24 @@ import (
 	"strings"
 )
 
-type Career struct {
-	Nama      string
-	Kategori  string
-	Keahlian  []string
-	Gaji      int
-	Kecocokan float64
+type Karier struct {
+	Nama       string
+	Kategori   string
+	Keahlian   []string
+	Gaji       int
+	Kecocokan  float64
 }
 
-var careers = []Career{
-	{"Data Scientist", "Teknologi", []string{"Python", "Statistik"}, 15000000, 0},
-	{"UX Designer", "Desain", []string{"Desain UI", "Figma"}, 12000000, 0},
+var daftarKarier = []Karier{
+	{"Ilmuwan Data", "Teknologi", []string{"Python", "Statistik"}, 15000000, 0},
+	{"Perancang UX", "Desain", []string{"Desain UI", "Figma"}, 12000000, 0},
 	{"Akuntan", "Keuangan", []string{"Akuntansi", "Excel"}, 10000000, 0},
-	{"Web Developer", "Teknologi", []string{"HTML", "CSS", "JavaScript"}, 13000000, 0},
+	{"Pengembang Web", "Teknologi", []string{"HTML", "CSS", "JavaScript"}, 13000000, 0},
 }
 
-var userSkills []string
+var keahlianPengguna []string
 
-func input(teks string) string {
+func masukan(teks string) string {
 	fmt.Print(teks)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -34,29 +34,29 @@ func input(teks string) string {
 }
 
 func tambahKeahlian() {
-	skill := input("Masukkan keahlian: ")
-	for _, s := range userSkills {
-		if strings.EqualFold(s, skill) {
+	keahlian := masukan("Masukkan keahlian: ")
+	for _, k := range keahlianPengguna {
+		if strings.EqualFold(k, keahlian) {
 			fmt.Println("! Keahlian sudah ada.")
 			return
 		}
 	}
-	userSkills = append(userSkills, skill)
+	keahlianPengguna = append(keahlianPengguna, keahlian)
 	fmt.Println("✓ Keahlian ditambahkan.")
 }
 
-func lihatKeahlian() {
+func tampilkanKeahlian() {
 	fmt.Println("== Daftar Keahlian ==")
-	for i, s := range userSkills {
-		fmt.Printf("%d. %s\n", i+1, s)
+	for i, k := range keahlianPengguna {
+		fmt.Printf("%d. %s\n", i+1, k)
 	}
 }
 
-func editKeahlian() {
-	lihatKeahlian()
-	idx, _ := strconv.Atoi(input("Pilih nomor keahlian yang ingin diubah: "))
-	if idx > 0 && idx <= len(userSkills) {
-		userSkills[idx-1] = input("Masukkan keahlian baru: ")
+func ubahKeahlian() {
+	tampilkanKeahlian()
+	indeks, _ := strconv.Atoi(masukan("Pilih nomor keahlian yang ingin diubah: "))
+	if indeks > 0 && indeks <= len(keahlianPengguna) {
+		keahlianPengguna[indeks-1] = masukan("Masukkan keahlian baru: ")
 		fmt.Println("✓ Keahlian diubah.")
 	} else {
 		fmt.Println("! Nomor tidak valid.")
@@ -64,138 +64,140 @@ func editKeahlian() {
 }
 
 func hapusKeahlian() {
-	lihatKeahlian()
-	idx, _ := strconv.Atoi(input("Pilih nomor keahlian yang ingin dihapus: "))
-	if idx > 0 && idx <= len(userSkills) {
-		userSkills = append(userSkills[:idx-1], userSkills[idx:]...)
+	tampilkanKeahlian()
+	indeks, _ := strconv.Atoi(masukan("Pilih nomor keahlian yang ingin dihapus: "))
+	if indeks > 0 && indeks <= len(keahlianPengguna) {
+		keahlianPengguna = append(keahlianPengguna[:indeks-1], keahlianPengguna[indeks:]...)
 		fmt.Println("✓ Keahlian dihapus.")
 	} else {
 		fmt.Println("! Nomor tidak valid.")
 	}
 }
 
-func hitungRekomendasi() []Career {
-	var hasil []Career
-	for _, c := range careers {
-		kecocokan := 0
-		for _, skill := range c.Keahlian {
-			for _, uskill := range userSkills {
-				if strings.EqualFold(skill, uskill) {
-					kecocokan++
+func hitungKecocokan() []Karier {
+	var hasil []Karier
+	for _, k := range daftarKarier {
+		jumlahCocok := 0
+		for _, keahlian := range k.Keahlian {
+			for _, punya := range keahlianPengguna {
+				if strings.EqualFold(keahlian, punya) {
+					jumlahCocok++
 				}
 			}
 		}
-		persen := float64(kecocokan) / float64(len(c.Keahlian)) * 100
-		c.Kecocokan = persen
-		hasil = append(hasil, c)
+		persen := float64(jumlahCocok) / float64(len(k.Keahlian)) * 100
+		k.Kecocokan = persen
+		hasil = append(hasil, k)
 	}
 	return hasil
 }
 
 func tampilkanRekomendasi() {
-	hasil := hitungRekomendasi()
+	hasil := hitungKecocokan()
 	fmt.Println("Urut berdasarkan: 1. Kecocokan  2. Gaji")
-	pilihan := input("Pilih: ")
+	pilihan := masukan("Pilih: ")
 	if pilihan == "1" {
-		selectionSortByKecocokan(hasil)
+		urutKecocokan(hasil)
 	} else if pilihan == "2" {
-		insertionSortByGaji(hasil)
+		urutGaji(hasil)
 	}
-	for _, c := range hasil {
-		fmt.Printf("- %s (%s) → Kecocokan: %.2f%%, Gaji: Rp%d\n", c.Nama, c.Kategori, c.Kecocokan, c.Gaji)
+	for _, k := range hasil {
+		fmt.Printf("- %s (%s) → Kecocokan: %.2f%%, Gaji: Rp%d\n", k.Nama, k.Kategori, k.Kecocokan, k.Gaji)
 	}
 }
 
-func selectionSortByKecocokan(data []Career) {
+func urutKecocokan(data []Karier) {
 	for i := 0; i < len(data)-1; i++ {
-		maxIdx := i
+		maks := i
 		for j := i + 1; j < len(data); j++ {
-			if data[j].Kecocokan > data[maxIdx].Kecocokan {
-				maxIdx = j
+			if data[j].Kecocokan > data[maks].Kecocokan {
+				maks = j
 			}
 		}
-		data[i], data[maxIdx] = data[maxIdx], data[i]
+		data[i], data[maks] = data[maks], data[i]
 	}
 }
 
-func insertionSortByGaji(data []Career) {
+func urutGaji(data []Karier) {
 	for i := 1; i < len(data); i++ {
-		key := data[i]
+		kunci := data[i]
 		j := i - 1
-		for j >= 0 && data[j].Gaji < key.Gaji {
+		for j >= 0 && data[j].Gaji < kunci.Gaji {
 			data[j+1] = data[j]
 			j--
 		}
-		data[j+1] = key
+		data[j+1] = kunci
 	}
 }
 
-func sequentialSearch(nama string) *Career {
-	for _, c := range careers {
-		if strings.EqualFold(c.Nama, nama) {
-			return &c
+func cariNama(nama string) *Karier {
+	for _, k := range daftarKarier {
+		if strings.EqualFold(k.Nama, nama) {
+			return &k
 		}
 	}
 	return nil
 }
-func binarySearchKategori(kategori string) *Career {
-	sort.Slice(careers, func(i, j int) bool {
-		return careers[i].Kategori < careers[j].Kategori
+
+func cariKategori(kategori string) *Karier {
+	sort.Slice(daftarKarier, func(i, j int) bool {
+		return daftarKarier[i].Kategori < daftarKarier[j].Kategori
 	})
-	low, high := 0, len(careers)-1
-	for low <= high {
-		mid := (low + high) / 2
-		if strings.EqualFold(careers[mid].Kategori, kategori) {
-			return &careers[mid]
-		} else if careers[mid].Kategori < kategori {
-			low = mid + 1
+	awal, akhir := 0, len(daftarKarier)-1
+	for awal <= akhir {
+		tengah := (awal + akhir) / 2
+		if strings.EqualFold(daftarKarier[tengah].Kategori, kategori) {
+			return &daftarKarier[tengah]
+		} else if daftarKarier[tengah].Kategori < kategori {
+			awal = tengah + 1
 		} else {
-			high = mid - 1
+			akhir = tengah - 1
 		}
 	}
 	return nil
 }
-func statistik() {
+
+func tampilkanStatistik() {
 	fmt.Println("== Statistik Kecocokan ==")
-	rekom := hitungRekomendasi()
-	for _, c := range rekom {
-		fmt.Printf("%s → %.2f%% cocok\n", c.Nama, c.Kecocokan)
+	rekom := hitungKecocokan()
+	for _, k := range rekom {
+		fmt.Printf("%s → %.2f%% cocok\n", k.Nama, k.Kecocokan)
 	}
 }
 func main() {
 	for {
 		fmt.Println("\n== MENU UTAMA ==")
 		fmt.Println("1. Tambah Keahlian")
-		fmt.Println("2. Edit Keahlian")
+		fmt.Println("2. Ubah Keahlian")
 		fmt.Println("3. Hapus Keahlian")
 		fmt.Println("4. Lihat Rekomendasi Karier")
 		fmt.Println("5. Cari Karier (Nama/Kategori)")
 		fmt.Println("6. Statistik Kecocokan")
 		fmt.Println("0. Keluar")
 
-		pilih := input("Pilih menu: ")
-		switch pilih {
+		pilihan := masukan("Pilih menu: ")
+		switch pilihan {
 		case "1":
 			tambahKeahlian()
 		case "2":
-			editKeahlian()
+			ubahKeahlian()
 		case "3":
 			hapusKeahlian()
 		case "4":
 			tampilkanRekomendasi()
 		case "5":
-			mode := input("Cari berdasarkan (1. Nama / 2. Kategori): ")
+			mode := masukan("Cari berdasarkan (1. Nama / 2. Kategori): ")
 			if mode == "1" {
-				nama := input("Masukkan nama karier: ")
-				hasil := sequentialSearch(nama)
+				nama := masukan("Masukkan nama karier: ")
+				hasil := cariNama(nama)
 				if hasil != nil {
 					fmt.Printf("✓ Ditemukan: %s (%s)\n", hasil.Nama, hasil.Kategori)
 				} else {
 					fmt.Println("! Karier tidak ditemukan.")
 				}
 			} else if mode == "2" {
-				kat := input("Masukkan kategori industri: ")
-				hasil := binarySearchKategori(kat)
+				kat := masukan("Masukkan kategori industri: ")
+				hasil := cariKategori(kat)
 				if hasil != nil {
 					fmt.Printf("✓ Ditemukan: %s (%s)\n", hasil.Nama, hasil.Kategori)
 				} else {
@@ -203,9 +205,9 @@ func main() {
 				}
 			}
 		case "6":
-			statistik()
+			tampilkanStatistik()
 		case "0":
-			fmt.Println("Terima kasih telah menggunakan aplikasi.")
+			fmt.Println("Terima kasih telah menggunakan aplikasi kami.")
 			return
 		default:
 			fmt.Println("! Menu tidak valid.")
